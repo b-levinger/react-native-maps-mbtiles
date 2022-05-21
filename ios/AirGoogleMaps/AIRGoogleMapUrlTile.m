@@ -7,8 +7,8 @@
 
 #import "AIRGoogleMapUrlTile.h"
 #import "sqlite3.h"
+#import "MBTilesDbProvider.h"
 #include <regex.h>
-#imprt "MBTilesDbProvider.h"
 
 @implementation MyTileLayer {
     sqlite3* _db;
@@ -245,8 +245,8 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 - (void)setUrlTemplate:(NSString *)urlTemplate
 {
     _urlTemplate = urlTemplate;
-    if (urlTemplate) {
-        _db = [[MBTilesDbPRovider singleton] getDb:urlTemplate];
+    if (urlTemplate != nil) {
+        _db = [[MBTilesDbProvider singleton] getDb:urlTemplate];
     }
     _tileLayer = [[MyTileLayer alloc] initWithDb:_db];
     _tileLayer.tileSize = [[UIScreen mainScreen] scale] * 256;
