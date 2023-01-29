@@ -207,7 +207,7 @@
                 UIImage* croppedImage = [self cropImage:tile toRect:cropRect];
                 tile = [self imageWithImage:croppedImage scaledToSize:CGSizeMake(imageSize, imageSize)];
             }
-        } @catch(err) {
+        } @catch(id err) {
             
         }
         
