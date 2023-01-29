@@ -11,6 +11,11 @@ const propTypes = {
   ...ViewPropTypes,
 
   /**
+   * Etag for mb tile database, when it changes the db will be closed and re-opened
+   */
+  mbTileDbEtag: PropTypes.string,
+
+  /**
    * The url template of the tile server. The patterns {x} {y} {z} will be replaced at runtime
    * For example, http://c.tile.openstreetmap.org/{z}/{x}/{y}.png
    */
