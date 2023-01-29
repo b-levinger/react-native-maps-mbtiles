@@ -22,6 +22,7 @@ RCT_EXPORT_MODULE()
   return tileLayer;
 }
 
+RCT_EXPORT_VIEW_PROPERTY(mbTileDbEtag, NSString)
 RCT_EXPORT_VIEW_PROPERTY(urlTemplate, NSString)
 RCT_EXPORT_VIEW_PROPERTY(zIndex, int)
 RCT_EXPORT_VIEW_PROPERTY(maximumZ, NSInteger)

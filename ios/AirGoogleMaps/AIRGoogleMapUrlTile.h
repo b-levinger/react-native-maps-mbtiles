@@ -16,6 +16,7 @@
 @interface AIRGoogleMapUrlTile : UIView
 
 @property (nonatomic, strong) MyTileLayer *tileLayer;
+@property (nonatomic, assign) NSString *mbTileDbEtag;
 @property (nonatomic, assign) NSString *urlTemplate;
 @property (nonatomic, assign) int zIndex;
 @property NSInteger *maximumZ;

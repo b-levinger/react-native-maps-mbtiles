@@ -12,6 +12,10 @@ import {ViewProps} from 'react-native';
 
 export type MapUrlTileProps = ViewProps & {
   /**
+   * Etag for mb tile database, when it changes the db will be closed and re-opened
+   */
+  mbTileDbEtag?: string;
+  /**
    * Doubles tile size from 256 to 512 utilising higher zoom levels
    * i.e loading 4 higher zoom level tiles and combining them for one high-resolution tile.
    * iOS does this automatically, even if it is not desirable always.
