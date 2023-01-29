@@ -257,37 +257,17 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     _tileLayer.zIndex = zIndex;
 }
 
-- (void)resetMbTileDatabase
-{
-    if (_db != nil) {
-        sqlite3_close(_db);
-        _db = nil;
-    }
-    if (_urlTemplate != nil) {
-        _db = [[MBTilesDbProvider singleton] getDb:_urlTemplate];
-    }
-    _tileLayer = [[MyTileLayer alloc] initWithDb:_db];
-    _tileLayer.tileSize = [[UIScreen mainScreen] scale] * 256;
-}
-
-- (void)setMbTileDbEtag:(NSString *)mbTileDbEtag
-{
-    if (_mbTileDbEtag == mbTileDbEtag || [_mbTileDbEtag isEqualToString:mbTileDbEtag]) {
-        return;
-    }
-    [self resetMbTileDatabase];
-    _mbTileDbEtag = mbTileDbEtag;
-}
-
 - (void)setUrlTemplate:(NSString *)urlTemplate
 {
     _urlTemplate = urlTemplate;
-    if (urlTemplate != nil) {
+    [[MBTilesDbProvider singleton] closeDbs];
+    if (urlTemplate != nil && ![urlTemplate isEqualToString:@""]) {
         _db = [[MBTilesDbProvider singleton] getDb:urlTemplate];
+        _tileLayer = [[MyTileLayer alloc] initWithDb:_db];
+        _tileLayer.tileSize = [[UIScreen mainScreen] scale] * 256;
     }
-    _tileLayer = [[MyTileLayer alloc] initWithDb:_db];
-    _tileLayer.tileSize = [[UIScreen mainScreen] scale] * 256;
 }
+
 
 @end
 
