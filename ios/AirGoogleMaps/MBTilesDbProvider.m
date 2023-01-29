@@ -79,6 +79,17 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 }
 
+-(void) closeDbs {
+    @synchronized (self) {
+        for(id key in _dbs) {
+            NSDictionary *dbInfo = _dbs[key];
+            sqlite3 *db = [((NSValue *) dbInfo[@"dbPointer"]) pointerValue];
+            sqlite3_close(db);
+        }
+        [_dbs removeAllObjects];
+    }
+}
+
 -(sqlite3*) openDb:(NSString*)pathTemplate
 {
     //    SQLiteResult* pluginResult = nil;

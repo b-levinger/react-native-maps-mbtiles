@@ -4,4 +4,5 @@
 @interface MBTilesDbProvider : NSObject
     + singleton;
     -(sqlite3*) getDb:(NSString*)forPath;
+    -(void) closeDbs;
 @end
