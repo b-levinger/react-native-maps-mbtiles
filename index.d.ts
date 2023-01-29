@@ -505,6 +505,7 @@ declare module 'react-native-maps' {
   // =======================================================================
 
   export interface MapUrlTileProps extends ViewProperties {
+	mbTileEtag?: string;
     urlTemplate: string;
     minimumZ?: number;
     maximumZ?: number;
