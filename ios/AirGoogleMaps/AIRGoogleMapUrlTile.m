@@ -183,33 +183,33 @@
     
     UIImage* tile = [self loadTileForX:x y:y zoom:z];
     if (tile == nil) {
-        @try {
-            
-            float parentX = [self lon2tile: [self tile2long:x zoom: z] zoom:z-1];
-            float parentY = [self lat2tile: [self tile2lat:y zoom: z] zoom:z-1];
-            
-            int parentXInt = floor(parentX);
-            int parentYInt = floor(parentY);
-            
-            tile = [self loadTileForX:parentXInt y:parentYInt zoom:z-1];
-            if (tile != nil) {
-                //TODO determine quadrant, resize and zoom on the quadrant
-                int imageSize = 256;
-                int cropX = 0;
-                int cropY = 0;
-                if (fabs(parentX - parentXInt)  > 0.5) {
-                    cropX = imageSize / 2;
-                }
-                if (fabs(parentY - parentYInt)  > 0.5) {
-                    cropY = imageSize / 2;
-                }
-                CGRect cropRect = CGRectMake(cropX, cropY, imageSize / 2, imageSize / 2);
-                UIImage* croppedImage = [self cropImage:tile toRect:cropRect];
-                tile = [self imageWithImage:croppedImage scaledToSize:CGSizeMake(imageSize, imageSize)];
-            }
-        } @catch(id err) {
-            
-        }
+//        @try {
+//            
+//            float parentX = [self lon2tile: [self tile2long:x zoom: z] zoom:z-1];
+//            float parentY = [self lat2tile: [self tile2lat:y zoom: z] zoom:z-1];
+//            
+//            int parentXInt = floor(parentX);
+//            int parentYInt = floor(parentY);
+//            
+//            tile = [self loadTileForX:parentXInt y:parentYInt zoom:z-1];
+//            if (tile != nil) {
+//                //TODO determine quadrant, resize and zoom on the quadrant
+//                int imageSize = 256;
+//                int cropX = 0;
+//                int cropY = 0;
+//                if (fabs(parentX - parentXInt)  > 0.5) {
+//                    cropX = imageSize / 2;
+//                }
+//                if (fabs(parentY - parentYInt)  > 0.5) {
+//                    cropY = imageSize / 2;
+//                }
+//                CGRect cropRect = CGRectMake(cropX, cropY, imageSize / 2, imageSize / 2);
+//                UIImage* croppedImage = [self cropImage:tile toRect:cropRect];
+//                tile = [self imageWithImage:croppedImage scaledToSize:CGSizeMake(imageSize, imageSize)];
+//            }
+//        } @catch(id err) {
+//            
+//        }
         
     }
     
