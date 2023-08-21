@@ -50,3 +50,5 @@ lib/
 example/vendor/bundle/
 
 example/ios/Config.xcconfig
+
+*.tgz
