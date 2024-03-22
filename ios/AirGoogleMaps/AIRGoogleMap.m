@@ -25,10 +25,10 @@
 #import <objc/runtime.h>
 
 #ifdef HAVE_GOOGLE_MAPS_UTILS
-#import <Google-Maps-iOS-Utils/GMUKMLParser.h>
-#import <Google-Maps-iOS-Utils/GMUPlacemark.h>
-#import <Google-Maps-iOS-Utils/GMUPoint.h>
-#import <Google-Maps-iOS-Utils/GMUGeometryRenderer.h>
+#import "GMUKMLParser.h"
+#import "GMUPlacemark.h"
+#import "GMUPoint.h"
+#import "GMUGeometryRenderer.h"
 #define REQUIRES_GOOGLE_MAPS_UTILS(feature) do {} while (0)
 #else
 #define GMUKMLParser void
@@ -62,15 +62,27 @@ id regionAsJSON(MKCoordinateRegion region) {
   NSMutableArray<UIView *> *_reactSubviews;
   MKCoordinateRegion _initialRegion;
   MKCoordinateRegion _region;
-  BOOL _initialCameraSetOnLoad;
+  BOOL _initialRegionSet;
+  BOOL _initialCameraSet;
+  BOOL _didLayoutSubviews;
+  BOOL _didPrepareMap;
   BOOL _didCallOnMapReady;
-  BOOL _didMoveToWindow;
   BOOL _zoomTapEnabled;
+  NSString* _googleMapId;
 }
 
-- (instancetype)init
+- (instancetype)initWithMapId:(NSString *)mapId
 {
-  if ((self = [super init])) {
+    if (mapId){
+        GMSMapID *mapID = [GMSMapID mapIDWithIdentifier:mapId];
+        GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:47.0169
+                                                                longitude:-122.336471
+                                                                     zoom:12];
+        self = [super initWithFrame:CGRectZero mapID:mapID camera:camera];
+    } else {
+        self = [super init];
+    }
+    if (self) {
     _reactSubviews = [NSMutableArray new];
     _markers = [NSMutableArray array];
     _polygons = [NSMutableArray array];
@@ -83,9 +95,11 @@ id regionAsJSON(MKCoordinateRegion region) {
     _cameraProp = nil;
     _initialRegion = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
     _region = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
-    _initialCameraSetOnLoad = false;
+    _initialRegionSet = false;
+    _initialCameraSet = false;
+    _didLayoutSubviews = false;
+    _didPrepareMap = false;
     _didCallOnMapReady = false;
-    _didMoveToWindow = false;
     _zoomTapEnabled = YES;
 
     // Listen to the myLocation property of GMSMapView.
@@ -99,6 +113,10 @@ id regionAsJSON(MKCoordinateRegion region) {
     self.indoorDisplay.delegate = self;
   }
   return self;
+}
+
+- (instancetype) init {
+  return [self initWithMapId:nil];
 }
 
 - (void)dealloc {
@@ -245,42 +263,51 @@ id regionAsJSON(MKCoordinateRegion region) {
     ];
 }
 
-- (void)didMoveToWindow {
-  if (_didMoveToWindow) return;
-  _didMoveToWindow = true;
+- (void)layoutSubviews {
+  [super layoutSubviews];
+  if(_didLayoutSubviews) return;
+  _didLayoutSubviews = true;
 
   if (_initialCamera != nil) {
     self.camera = _initialCamera;
+    _initialCameraSet = true;
   }
   else if (_initialRegion.span.latitudeDelta != 0.0 &&
       _initialRegion.span.longitudeDelta != 0.0) {
     self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self andMKCoordinateRegion:_initialRegion];
+    _initialRegionSet = true;
   } else if (_region.span.latitudeDelta != 0.0 &&
       _region.span.longitudeDelta != 0.0) {
     self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self andMKCoordinateRegion:_region];
   }
-
-  [super didMoveToWindow];
 }
 
 - (void)setInitialRegion:(MKCoordinateRegion)initialRegion {
-  if (_initialCameraSetOnLoad) return;
   _initialRegion = initialRegion;
-  _initialCameraSetOnLoad = _didMoveToWindow;
-  self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self andMKCoordinateRegion:initialRegion];
+  if(!_initialRegionSet && _didLayoutSubviews){
+    self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self andMKCoordinateRegion:initialRegion];
+    _initialRegionSet = true;
+  }
 }
 
 - (void)setInitialCamera:(GMSCameraPosition*)initialCamera {
-    if (_initialCameraSetOnLoad) return;
     _initialCamera = initialCamera;
-    _initialCameraSetOnLoad = _didMoveToWindow;
-    self.camera = initialCamera;
+    if(!_initialCameraSet && _didLayoutSubviews){
+      self.camera = initialCamera;
+      _initialCameraSet = true;
+    }
 }
 
 - (void)setRegion:(MKCoordinateRegion)region {
   // TODO: The JS component is repeatedly setting region unnecessarily. We might want to deal with that in here.
   _region = region;
-  self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self  andMKCoordinateRegion:region];
+  if(_didLayoutSubviews) {
+    self.camera = [AIRGoogleMap makeGMSCameraPositionFromMap:self  andMKCoordinateRegion:region];
+  }
+}
+
+- (void) setGoogleMapId:(NSString *) googleMapId {
+    _googleMapId = googleMapId;
 }
 
 - (void)setCameraProp:(GMSCameraPosition*)camera {
@@ -288,14 +315,23 @@ id regionAsJSON(MKCoordinateRegion region) {
     self.camera = camera;
 }
 
+- (void)setOnMapReady:(RCTBubblingEventBlock)onMapReady {
+    _onMapReady = onMapReady;
+    if(!_didCallOnMapReady && _didPrepareMap) {
+      self.onMapReady(@{});
+      _didCallOnMapReady = true;
+    }
+}
 
 - (void)didPrepareMap {
   UIView* mapView = [self valueForKey:@"mapView"]; //GMSVectorMapView
   [self overrideGestureRecognizersForView:mapView];
 
-  if (_didCallOnMapReady) return;
-  _didCallOnMapReady = true;
-  if (self.onMapReady) self.onMapReady(@{});
+  if (!_didCallOnMapReady && self.onMapReady) {
+    self.onMapReady(@{});
+    _didCallOnMapReady = true;
+  }
+  _didPrepareMap = true;
 }
 
 - (void)mapViewDidFinishTileRendering {
@@ -797,7 +833,7 @@ id regionAsJSON(MKCoordinateRegion region) {
                     @"latitude": @(location.coordinate.latitude),
                     @"longitude": @(location.coordinate.longitude),
                     @"altitude": @(location.altitude),
-                    @"timestamp": @(location.timestamp.timeIntervalSinceReferenceDate * 1000),
+                    @"timestamp": @(location.timestamp.timeIntervalSince1970 * 1000),
                     @"accuracy": @(location.horizontalAccuracy),
                     @"altitudeAccuracy": @(location.verticalAccuracy),
                     @"speed": @(location.speed),

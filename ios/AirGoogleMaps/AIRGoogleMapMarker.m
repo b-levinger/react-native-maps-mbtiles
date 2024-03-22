@@ -97,12 +97,12 @@ CGRect unionRect(CGRect a, CGRect b) {
 }
 
 - (void)removeReactSubview:(id<RCTComponent>)dummySubview {
-  UIView* subview = ((AIRDummyView*)dummySubview).view;
+   UIView *subview = [dummySubview isKindOfClass:[AIRDummyView class]] ? ((AIRDummyView *)dummySubview).view : (UIView *)dummySubview;
 
   if ([subview isKindOfClass:[AIRGoogleMapCallout class]]) {
     self.calloutView = nil;
   } else {
-    [(UIView*)subview removeFromSuperview];
+    [subview removeFromSuperview];
   }
   [super removeReactSubview:(UIView*)dummySubview];
 }
@@ -324,6 +324,12 @@ CGRect unionRect(CGRect a, CGRect b) {
   if (_reloadImageCancellationBlock) {
     _reloadImageCancellationBlock();
     _reloadImageCancellationBlock = nil;
+  }
+
+  if (!_realMarker.icon) {
+    // prevent glitch with marker (cf. https://github.com/react-native-maps/react-native-maps/issues/3657)
+    UIImage *emptyImage = [[UIImage alloc] init];
+    _realMarker.icon = emptyImage;
   }
 
   _reloadImageCancellationBlock =

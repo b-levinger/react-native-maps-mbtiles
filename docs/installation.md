@@ -28,13 +28,9 @@ $ (cd ios && pod install)
 $ npx pod-install
 ```
 
-### Set the usage description property
-
-The app's `Info.plist` file must contain a `NSLocationWhenInUseUsageDescription` with a user-facing purpose string explaining clearly and completely why your app needs the location, otherwise Apple will reject your app submission.
-
 ### Enabling Google Maps
 
-If you want to enable Google Maps on iOS, obtain the Google API key and edit your `AppDelegate.m` as follows:
+If you want to enable Google Maps on iOS, obtain the Google API key and edit your `AppDelegate.m(m)` as follows:
 
 ```diff
 + #import <GoogleMaps/GoogleMaps.h>
@@ -50,21 +46,24 @@ If you want to enable Google Maps on iOS, obtain the Google API key and edit you
 
 The `[GMSServices provideAPIKey]` should be the **first call** of the method.
 
-Google Maps SDK for iOS requires iOS 12, so make sure that your deployment target is >= 12.0 in your iOS project settings.
+Google Maps SDK for iOS requires iOS 13, so make sure that your deployment target is >= 13.4 in your iOS project settings.
 
-Also make sure that your Podfile deployment target is set to >= 12.0 at the top of your Podfile, eg:
+Also make sure that your Podfile deployment target is set to >= 13.4 at the top of your Podfile, eg:
 
 ```ruby
-platform :ios, '12.0'
+platform :ios, '13.4'
 ```
 
 Add the following to your Podfile above the `use_native_modules!` function and run `pod install` in the ios folder:
 
 ```ruby
 # React Native Maps dependencies
+
 rn_maps_path = '../node_modules/react-native-maps'
 pod 'react-native-google-maps', :path => rn_maps_path
 ```
+
+The app's Info.plist file must contain a NSLocationWhenInUseUsageDescription with a user-facing purpose string explaining clearly and completely why your app needs the location, otherwise Apple will reject your app submission. This is required whether or not you are accessing the users location, as Google Maps iOS SDK contains the code required to access the users location.
 
 That's it, you made it! 👍
 
@@ -90,6 +89,7 @@ Add your API key to your manifest file (`android/app/src/main/AndroidManifest.xm
 The installation documentation previously specified adding `supportLibVersion`, `playServicesVersion` and `androidMapsUtilsVersion` to `build.gradle`.
 
 None of these keys are required anymore and can be removed, if not used by other modules in your project.
+
 > **ATTENTION**: If you leave `playServicesVersion` in `build.gradle`, the version must be at least `18.0.0`
 
 ### Ensure that you have Google Play Services installed
@@ -109,7 +109,7 @@ react-native-maps added support for the new renderer in v0.31.0.
 To opt in to the new renderer add the following code in your entry file (e.g. App.js):
 
 ```javascript
-import { enableLatestRenderer } from 'react-native-maps';
+import {enableLatestRenderer} from 'react-native-maps';
 
 enableLatestRenderer();
 ```
