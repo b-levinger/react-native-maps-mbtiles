@@ -16,6 +16,8 @@
 {
   if (self = [super init]) {
     _polygon = [[AIRGMSPolygon alloc] init];
+    _polygon.fillColor = _fillColor;
+    _polygon.strokeColor = _strokeColor;
   }
 
   return self;
