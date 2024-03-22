@@ -8,7 +8,6 @@ import {
   NativeSyntheticEvent,
   Platform,
   requireNativeComponent,
-  UIManager,
   ViewProps,
 } from 'react-native';
 import {
@@ -37,6 +36,7 @@ import {
   Address,
   BoundingBox,
   Camera,
+  CameraZoomRange,
   ChangeEvent,
   Details,
   EdgePadding,
@@ -57,6 +57,7 @@ import {
 } from './MapView.types';
 import {Modify} from './sharedTypesInternal';
 import {Commands, MapViewNativeComponentType} from './MapViewNativeComponent';
+import AnimatedRegion from './AnimatedRegion';
 
 export const MAP_TYPES: MapTypes = {
   STANDARD: 'standard',
@@ -65,6 +66,8 @@ export const MAP_TYPES: MapTypes = {
   TERRAIN: 'terrain',
   NONE: 'none',
   MUTEDSTANDARD: 'mutedStandard',
+  SATELLITE_FLYOVER: 'satelliteFlyover',
+  HYBRID_FLYOVER: 'hybridFlyover',
 };
 
 const GOOGLE_MAPS_ONLY_TYPES: MapType[] = [MAP_TYPES.TERRAIN, MAP_TYPES.NONE];
@@ -170,6 +173,12 @@ export type MapViewProps = ViewProps & {
   liteMode?: boolean;
 
   /**
+   * https://developers.google.com/maps/documentation/get-map-id
+   * google cloud mapId to enable cloud styling and more
+   */
+  googleMapId?: string;
+
+  /**
    * Sets loading background color.
    *
    * @default `#FFFFFF`
@@ -208,8 +217,8 @@ export type MapViewProps = ViewProps & {
    * The map type to be displayed
    *
    * @default `standard`
-   * @platform iOS: hybrid | mutedStandard | sattelite | standard | terrain
-   * @platform Android: hybrid | none | sattelite | standard | terrain
+   * @platform iOS: hybrid | mutedStandard | satellite | standard | terrain | hybridFlyover | satelliteFlyover
+   * @platform Android: hybrid | none | satellite | standard | terrain
    */
   mapType?: MapType;
 
@@ -227,6 +236,7 @@ export type MapViewProps = ViewProps & {
    * @default 20
    * @platform iOS: Supported
    * @platform Android: Supported
+   * @deprecated on Apple Maps, use `cameraZoomRange` instead
    */
   maxZoomLevel?: number;
 
@@ -244,6 +254,7 @@ export type MapViewProps = ViewProps & {
    * @default 0
    * @platform iOS: Supported
    * @platform Android: Supported
+   * @deprecated on Apple Maps, use `cameraZoomRange` instead
    */
   minZoomLevel?: number;
 
@@ -462,7 +473,7 @@ export type MapViewProps = ViewProps & {
    * @platform iOS: Supported
    * @platform Android: Supported
    */
-  region?: Region;
+  region?: Region | AnimatedRegion;
 
   /**
    * If `false` the user won't be able to adjust the camera’s pitch angle.
@@ -685,6 +696,16 @@ export type MapViewProps = ViewProps & {
    * @platform Android: Not supported
    */
   zoomTapEnabled?: boolean;
+
+  /**
+   * Map camera distance limits. `minCenterCoordinateDistance` for minimum distance, `maxCenterCoordinateDistance` for maximum.
+   * `animated` for animated zoom changes.
+   * Takes precedence if conflicting with `minZoomLevel`, `maxZoomLevel`.
+   *
+   * @platform iOS: 13.0+
+   * @platform Android: Not supported
+   */
+  cameraZoomRange?: CameraZoomRange;
 };
 
 type ModifiedProps = Modify<
@@ -726,14 +747,7 @@ class MapView extends React.Component<MapViewProps, State> {
     this._onChange = this._onChange.bind(this);
   }
 
-  /**
-   * @deprecated Will be removed in v2.0.0, as setNativeProps is not a thing in fabric.
-   * See https://reactnative.dev/docs/new-architecture-library-intro#migrating-off-setnativeprops
-   */
   setNativeProps(props: Partial<NativeProps>) {
-    console.warn(
-      'setNativeProps is deprecated and will be removed in next major release',
-    );
     // @ts-ignore
     this.map.current?.setNativeProps(props);
   }
@@ -1044,6 +1058,8 @@ class MapView extends React.Component<MapViewProps, State> {
         initialRegion: null,
         onChange: this._onChange,
         onMapReady: this._onMapReady,
+        liteMode: this.props.liteMode,
+        googleMapId: this.props.googleMapId,
         ref: this.map,
         customMapStyleString: this.props.customMapStyle
           ? JSON.stringify(this.props.customMapStyle)
@@ -1065,6 +1081,8 @@ class MapView extends React.Component<MapViewProps, State> {
       props = {
         style: this.props.style,
         region: null,
+        liteMode: this.props.liteMode,
+        googleMapId: this.props.googleMapId,
         initialRegion: this.props.initialRegion || null,
         initialCamera: this.props.initialCamera,
         ref: this.map,
@@ -1075,14 +1093,6 @@ class MapView extends React.Component<MapViewProps, State> {
           ? JSON.stringify(this.props.customMapStyle)
           : undefined,
       };
-    }
-
-    if (Platform.OS === 'android' && this.props.liteMode) {
-      return (
-        <ProviderContext.Provider value={this.props.provider}>
-          <AIRMapLite {...props} />
-        </ProviderContext.Provider>
-      );
     }
 
     const AIRMap = getNativeMapComponent(this.props.provider);
@@ -1113,10 +1123,6 @@ if (Platform.OS === 'android') {
 }
 const getNativeMapComponent = (provider: Provider) =>
   airMaps[provider || 'default'];
-
-const AIRMapLite = UIManager.getViewManagerConfig('AIRMapLite')
-  ? requireNativeComponent<NativeProps>('AIRMapLite')
-  : () => null;
 
 export const AnimatedMapView = RNAnimated.createAnimatedComponent(MapView);
 

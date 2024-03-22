@@ -26,10 +26,10 @@ export type MapStyleElement = {
 };
 
 export type EdgePadding = {
-  top: Number;
-  right: Number;
-  bottom: Number;
-  left: Number;
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
 };
 
 export type MapType =
@@ -38,7 +38,9 @@ export type MapType =
   | 'none'
   | 'satellite'
   | 'standard'
-  | 'terrain';
+  | 'terrain'
+  | 'satelliteFlyover'
+  | 'hybridFlyover';
 
 export type MapTypes = {
   STANDARD: 'standard';
@@ -47,6 +49,8 @@ export type MapTypes = {
   TERRAIN: 'terrain';
   NONE: 'none';
   MUTEDSTANDARD: 'mutedStandard';
+  SATELLITE_FLYOVER: 'satelliteFlyover';
+  HYBRID_FLYOVER: 'hybridFlyover';
 };
 
 export type IndoorLevel = {
@@ -181,6 +185,13 @@ export type Address = {
   subAdministrativeArea: string;
   subLocality: string;
   thoroughfare: string;
+  subThoroughfare?: string;
+};
+
+export type CameraZoomRange = {
+  minCenterCoordinateDistance?: number;
+  maxCenterCoordinateDistance?: number;
+  animated?: boolean;
 };
 
 export type NativeCommandName =

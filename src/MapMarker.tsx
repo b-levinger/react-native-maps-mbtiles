@@ -343,16 +343,12 @@ export class MapMarker extends React.Component<MapMarkerProps> {
     this.marker = React.createRef<MapMarkerNativeComponentType>();
     this.showCallout = this.showCallout.bind(this);
     this.hideCallout = this.hideCallout.bind(this);
+    this.setCoordinates = this.setCoordinates.bind(this);
     this.redrawCallout = this.redrawCallout.bind(this);
     this.animateMarkerToCoordinate = this.animateMarkerToCoordinate.bind(this);
   }
 
-  /**
-   * @deprecated Will be removed in v2.0.0, as setNativeProps is not a thing in fabric.
-   * See https://reactnative.dev/docs/new-architecture-library-intro#migrating-off-setnativeprops
-   */
   setNativeProps(props: Partial<NativeProps>) {
-    // setNativeProps is deprecated and will be removed in next major release
     // @ts-ignore
     this.marker.current?.setNativeProps(props);
   }
@@ -366,6 +362,12 @@ export class MapMarker extends React.Component<MapMarkerProps> {
   hideCallout() {
     if (this.marker.current) {
       Commands.hideCallout(this.marker.current);
+    }
+  }
+
+  setCoordinates(coordinate: LatLng) {
+    if (this.marker.current) {
+      Commands.setCoordinates(this.marker.current, coordinate);
     }
   }
 

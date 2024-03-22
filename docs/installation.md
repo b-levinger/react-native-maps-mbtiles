@@ -46,20 +46,18 @@ If you want to enable Google Maps on iOS, obtain the Google API key and edit you
 
 The `[GMSServices provideAPIKey]` should be the **first call** of the method.
 
-Google Maps SDK for iOS requires iOS 13, so make sure that your deployment target is >= 13.0 in your iOS project settings.
+Google Maps SDK for iOS requires iOS 13, so make sure that your deployment target is >= 13.4 in your iOS project settings.
 
-Also make sure that your Podfile deployment target is set to >= 13.0 at the top of your Podfile, eg:
+Also make sure that your Podfile deployment target is set to >= 13.4 at the top of your Podfile, eg:
 
 ```ruby
-platform :ios, '13.0'
+platform :ios, '13.4'
 ```
 
 Add the following to your Podfile above the `use_native_modules!` function and run `pod install` in the ios folder:
 
 ```ruby
 # React Native Maps dependencies
-# The following line is only needed if building on an Apple silicon Mac without rosetta.
-pod 'Google-Maps-iOS-Utils', :git => 'https://github.com/Simon-TechForm/google-maps-ios-utils.git', :branch => 'feat/support-apple-silicon'
 
 rn_maps_path = '../node_modules/react-native-maps'
 pod 'react-native-google-maps', :path => rn_maps_path
