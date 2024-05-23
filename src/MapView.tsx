@@ -179,6 +179,15 @@ export type MapViewProps = ViewProps & {
   googleMapId?: string;
 
   /**
+   * https://developers.google.com/maps/documentation/android-sdk/renderer
+   * google maps renderer
+   * @default `LATEST`
+   * @platform iOS: Not supported
+   * @platform Android: Supported
+   */
+  googleRenderer?: 'LATEST' | 'LEGACY';
+
+  /**
    * Sets loading background color.
    *
    * @default `#FFFFFF`
@@ -338,8 +347,8 @@ export type MapViewProps = ViewProps & {
    * Callback that is called when a marker on the map becomes deselected.
    * This will be called when the callout for that marker is about to be hidden.
    *
-   * @platform iOS: Apple Maps only
-   * @platform Android: Not supported
+   * @platform iOS: Supported
+   * @platform Android: Supported
    */
   onMarkerDeselect?: (event: MarkerDeselectEvent) => void;
 
@@ -380,8 +389,8 @@ export type MapViewProps = ViewProps & {
    * Callback that is called when a marker on the map becomes selected.
    * This will be called when the callout for that marker is about to be shown.
    *
-   * @platform iOS: Apple Maps only.
-   * @platform Android: Not supported
+   * @platform iOS: Supported.
+   * @platform Android: Supported
    */
   onMarkerSelect?: (event: MarkerSelectEvent) => void;
 
@@ -1060,6 +1069,7 @@ class MapView extends React.Component<MapViewProps, State> {
         onMapReady: this._onMapReady,
         liteMode: this.props.liteMode,
         googleMapId: this.props.googleMapId,
+        googleRenderer: this.props.googleRenderer,
         ref: this.map,
         customMapStyleString: this.props.customMapStyle
           ? JSON.stringify(this.props.customMapStyle)
@@ -1083,6 +1093,7 @@ class MapView extends React.Component<MapViewProps, State> {
         region: null,
         liteMode: this.props.liteMode,
         googleMapId: this.props.googleMapId,
+        googleRenderer: this.props.googleRenderer,
         initialRegion: this.props.initialRegion || null,
         initialCamera: this.props.initialCamera,
         ref: this.map,
@@ -1125,13 +1136,6 @@ const getNativeMapComponent = (provider: Provider) =>
   airMaps[provider || 'default'];
 
 export const AnimatedMapView = RNAnimated.createAnimatedComponent(MapView);
-
-export const enableLatestRenderer = () => {
-  if (Platform.OS !== 'android') {
-    return;
-  }
-  return NativeModules.AirMapModule.enableLatestRenderer();
-};
 
 MapView.Animated = AnimatedMapView;
 
