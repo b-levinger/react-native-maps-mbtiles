@@ -49,6 +49,13 @@ id regionAsJSON(MKCoordinateRegion region) {
            };
 }
 
+@interface RCTLegacyViewManagerInteropComponentView
+
+- (UIView *)paperView;
+
+@end
+
+
 @interface AIRGoogleMap () <GMSIndoorDisplayDelegate>
 
 - (id)eventFromCoordinate:(CLLocationCoordinate2D)coordinate;
@@ -194,6 +201,11 @@ id regionAsJSON(MKCoordinateRegion region) {
 - (void)removeReactSubview:(id<RCTComponent>)subview {
   // similarly, when the children are being removed we have to do the appropriate
   // underlying mapview action here.
+
+    if ([subview respondsToSelector:NSSelectorFromString(@"paperView")]) {
+      subview = [(RCTLegacyViewManagerInteropComponentView*)subview paperView];
+    }
+
   if ([subview isKindOfClass:[AIRGoogleMapMarker class]]) {
     AIRGoogleMapMarker *marker = (AIRGoogleMapMarker*)subview;
     marker.realMarker.map = nil;
