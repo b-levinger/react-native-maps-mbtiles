@@ -49,6 +49,15 @@ export type MapViewProps = ViewProps & {
      */
     followsUserLocation?: boolean;
     /**
+     * If `false` the map will not capture PoI clicks
+     * This can improve click handling on the map for android
+     *
+     * @default true
+     * @platform iOS: Not supported
+     * @platform Android: supported
+     */
+    poiClickEnabled?: boolean;
+    /**
      * The initial camera view the map should use.  Use this prop instead of `camera`
      * only if you don't want to control the camera of the map besides the initial view.
      *
@@ -102,10 +111,18 @@ export type MapViewProps = ViewProps & {
      */
     googleMapId?: string;
     /**
+     * https://developers.google.com/maps/documentation/android-sdk/renderer
+     * google maps renderer
+     * @default `LATEST`
+     * @platform iOS: Not supported
+     * @platform Android: Supported
+     */
+    googleRenderer?: 'LATEST' | 'LEGACY';
+    /**
      * Sets loading background color.
      *
      * @default `#FFFFFF`
-     * @platform iOS: Apple Maps only
+     * @platform iOS: Supported
      * @platform Android: Supported
      */
     loadingBackgroundColor?: string;
@@ -243,8 +260,8 @@ export type MapViewProps = ViewProps & {
      * Callback that is called when a marker on the map becomes deselected.
      * This will be called when the callout for that marker is about to be hidden.
      *
-     * @platform iOS: Apple Maps only
-     * @platform Android: Not supported
+     * @platform iOS: Supported
+     * @platform Android: Supported
      */
     onMarkerDeselect?: (event: MarkerDeselectEvent) => void;
     /**
@@ -280,8 +297,8 @@ export type MapViewProps = ViewProps & {
      * Callback that is called when a marker on the map becomes selected.
      * This will be called when the callout for that marker is about to be shown.
      *
-     * @platform iOS: Apple Maps only.
-     * @platform Android: Not supported
+     * @platform iOS: Supported.
+     * @platform Android: Supported
      */
     onMarkerSelect?: (event: MarkerSelectEvent) => void;
     /**
@@ -306,6 +323,15 @@ export type MapViewProps = ViewProps & {
      * @platform Android: Supported
      */
     onPress?: (event: MapPressEvent) => void;
+    /**
+     * Callback that is called once before the region changes, such as when the user starts moving the map.
+     * `isGesture` property indicates if the move was from the user (true) or an animation (false).
+     * **Note**: `isGesture` is supported by Google Maps only.
+     *
+     * @platform iOS: Supported
+     * @platform Android: Supported
+     */
+    onRegionChangeStart?: (event: NativeSyntheticEvent<Details>) => void;
     /**
      * Callback that is called continuously when the region changes, such as when a user is dragging the map.
      * `isGesture` property indicates if the move was from the user (true) or an animation (false).
@@ -682,5 +708,4 @@ declare class MapView extends React.Component<MapViewProps, State> {
     render(): React.JSX.Element;
 }
 export declare const AnimatedMapView: RNAnimated.AnimatedComponent<typeof MapView>;
-export declare const enableLatestRenderer: () => any;
 export default MapView;
