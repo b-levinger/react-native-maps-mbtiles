@@ -78,17 +78,22 @@ id regionAsJSON(MKCoordinateRegion region) {
   NSString* _googleMapId;
 }
 
-- (instancetype)initWithMapId:(NSString *)mapId andZoomTapEnabled:(BOOL)zoomTapEnabled
+- (instancetype)initWithMapId:(NSString *)mapId initialCamera:(GMSCameraPosition*) camera backgroundColor:(UIColor *) backgroundColor andZoomTapEnabled:(BOOL)zoomTapEnabled
 {
+    GMSMapViewOptions* options = [[GMSMapViewOptions alloc] init];
+
     if (mapId){
         GMSMapID *mapID = [GMSMapID mapIDWithIdentifier:mapId];
-        GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:47.0169
-                                                                longitude:-122.336471
-                                                                     zoom:12];
-        self = [super initWithFrame:CGRectZero mapID:mapID camera:camera];
-    } else {
-        self = [super init];
+        [options setMapID:mapID];
     }
+    if (backgroundColor){
+        [options setBackgroundColor:backgroundColor];
+    }
+    if (camera){
+        [options setCamera:camera];
+    }
+    self = [super initWithOptions:options];
+ 
     if (self) {
     _reactSubviews = [NSMutableArray new];
     _markers = [NSMutableArray array];
@@ -99,7 +104,6 @@ id regionAsJSON(MKCoordinateRegion region) {
     _tiles = [NSMutableArray array];
     _overlays = [NSMutableArray array];
     _initialCamera = nil;
-    _cameraProp = nil;
     _initialRegion = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
     _region = MKCoordinateRegionMake(CLLocationCoordinate2DMake(0.0, 0.0), MKCoordinateSpanMake(0.0, 0.0));
     _initialRegionSet = false;
@@ -123,7 +127,7 @@ id regionAsJSON(MKCoordinateRegion region) {
 }
 
 - (instancetype) init {
-  return [self initWithMapId:nil andZoomTapEnabled:YES];
+  return [self initWithMapId:nil initialCamera:nil backgroundColor:nil andZoomTapEnabled:YES];
 }
 
 - (void)dealloc {
@@ -322,9 +326,19 @@ id regionAsJSON(MKCoordinateRegion region) {
     _googleMapId = googleMapId;
 }
 
+- (GMSCameraPosition *)cameraProp {
+    if(_didLayoutSubviews) {
+      return self.camera;
+    } else {
+      return _initialCamera;
+    }
+}
+
 - (void)setCameraProp:(GMSCameraPosition*)camera {
     _initialCamera = camera;
-    self.camera = camera;
+    if(_didLayoutSubviews) {
+      self.camera = camera;
+    }
 }
 
 - (void)setOnMapReady:(RCTBubblingEventBlock)onMapReady {
@@ -336,8 +350,9 @@ id regionAsJSON(MKCoordinateRegion region) {
 }
 
 - (void)didPrepareMap {
-  UIView* mapView = [self valueForKey:@"mapView"]; //GMSVectorMapView
-  [self overrideGestureRecognizersForView:mapView];
+    if (!_didPrepareMap){
+        [self overrideGestureRecognizersForView];
+    }
 
   if (!_didCallOnMapReady && self.onMapReady) {
     self.onMapReady(@{});
@@ -398,6 +413,11 @@ id regionAsJSON(MKCoordinateRegion region) {
 - (void)didLongPressAtCoordinate:(CLLocationCoordinate2D)coordinate {
   if (!self.onLongPress) return;
   self.onLongPress([self eventFromCoordinate:coordinate]);
+}
+
+- (void)willMove:(BOOL)gesture {
+  id event = @{@"isGesture": [NSNumber numberWithBool:gesture]};
+  if (self.onRegionChangeStart) self.onRegionChangeStart(event);
 }
 
 - (void)didChangeCameraPosition:(GMSCameraPosition *)position isGesture:(BOOL)isGesture{
@@ -728,8 +748,8 @@ id regionAsJSON(MKCoordinateRegion region) {
 
 #pragma mark - Overrides for Callout behavior
 
--(void)overrideGestureRecognizersForView:(UIView*)view {
-    NSArray* grs = view.gestureRecognizers;
+-(void)overrideGestureRecognizersForView {
+    NSArray* grs = self.gestureRecognizers;
     for (UIGestureRecognizer* gestureRecognizer in grs) {
         NSNumber* grHash = [NSNumber numberWithUnsignedInteger:gestureRecognizer.hash];
         if([self.origGestureRecognizersMeta objectForKey:grHash] != nil)
@@ -749,7 +769,7 @@ id regionAsJSON(MKCoordinateRegion region) {
                                             }];
         }
         if (isZoomTapGesture && self.zoomTapEnabled == NO) {
-            [view removeGestureRecognizer:gestureRecognizer];
+            [self removeGestureRecognizer:gestureRecognizer];
             continue;
         }
 
@@ -1023,6 +1043,10 @@ id regionAsJSON(MKCoordinateRegion region) {
                 @"shortName": level.shortName
         }
     });
+}
+// do nothing, passed as options on initialization
+- (void)setLoadingBackgroundColor:(UIColor *)loadingBackgroundColor {
+    
 }
 
 

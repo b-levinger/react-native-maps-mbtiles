@@ -18,10 +18,10 @@
 - (instancetype)init
 {
   if (self = [super init]) {
-      _didMoveToWindow = false;
-      _polygon = [[AIRGMSPolygon alloc] init];
-      _polygon.fillColor = _fillColor ? : [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.0];
-      _polygon.strokeColor = _strokeColor ? : [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.0];
+    _didMoveToWindow = false;
+    _polygon = [[AIRGMSPolygon alloc] init];
+    _polygon.fillColor = _fillColor;
+    _polygon.strokeColor = _strokeColor;
   }
 
   return self;

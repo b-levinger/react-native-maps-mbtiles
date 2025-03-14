@@ -5,6 +5,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.facebook.react.R;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableArray;
@@ -151,7 +152,7 @@ public class MapManager extends ViewGroupManager<MapView> {
 
     @ReactProp(name = "initialCamera")
     public void setInitialCamera(MapView view, ReadableMap initialCamera) {
-        // do nothing, passed as part of the InitialProps
+        view.setInitialCamera(initialCamera);
     }
 
     @ReactProp(name = "mapType")
@@ -287,6 +288,11 @@ public class MapManager extends ViewGroupManager<MapView> {
         view.setCacheEnabled(cacheEnabled);
     }
 
+      @ReactProp(name = "poiClickEnabled", defaultBoolean = true)
+        public void setPoiClickEnabled(MapView view, boolean poiClickEnabled) {
+            view.setPoiClickEnabled(poiClickEnabled);
+        }
+
     @ReactProp(name = "loadingEnabled", defaultBoolean = false)
     public void setLoadingEnabled(MapView view, boolean loadingEnabled) {
         view.enableMapLoading(loadingEnabled);
@@ -327,6 +333,11 @@ public class MapManager extends ViewGroupManager<MapView> {
         if (kmlUrl != null) {
             view.setKmlSrc(kmlUrl);
         }
+    }
+
+    @ReactProp(name = "accessibilityLabel")
+    public void setAccessibilityLabel(MapView view, @Nullable String accessibilityLabel) {
+        view.setTag(R.id.accessibility_label, accessibilityLabel);
     }
 
     @Override
@@ -438,7 +449,8 @@ public class MapManager extends ViewGroupManager<MapView> {
                 "onDoublePress", MapBuilder.of("registrationName", "onDoublePress"),
                 "onMapLoaded", MapBuilder.of("registrationName", "onMapLoaded"),
                 "onMarkerSelect", MapBuilder.of("registrationName", "onMarkerSelect"),
-                "onMarkerDeselect", MapBuilder.of("registrationName", "onMarkerDeselect")
+                "onMarkerDeselect", MapBuilder.of("registrationName", "onMarkerDeselect"),
+                "onRegionChangeStart", MapBuilder.of("registrationName", "onRegionChangeStart")
         ));
 
         return map;
