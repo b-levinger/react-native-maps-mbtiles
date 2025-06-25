@@ -18,13 +18,18 @@ See [Setup Instructions for the Included Example Project](docs/examples-setup.md
 
 ### Important Notes:
 
-- **Fabric is not yet supported**:  
-  This feature is currently under development. Fabric is enabled by default in React Native `0.76` and above, so **please disable it** for now.  
-  Follow updates on this issue here: [react-native-maps/issues/5206](https://github.com/react-native-maps/react-native-maps/issues/5206).  
-  Kindly refrain from opening duplicate tickets regarding this matter.
+- **Fabric is now supported**:  
+  Fabric is now supported for the latest version of the library, **latest version is strongly recommended** because many regressions appeared after the release of v1.22.0 if you don't have Fabric (New Arch) enabled, please use v1.21.0 or earlier
 
 ### Version Requirements:
 
+#### Fabric Only
+
+- **Version `1.22.0` and below**: Requires **React Native `>= 0.76`**.
+
+#### Old Arch
+
+- **Version `1.21.0` and below**: Requires **React Native `>= 0.74`**.
 - **Version `1.14.0` and above**: Requires **React Native `>= 0.74`**.
 - **Versions below `1.14.0`**: Require **React Native `>= 0.64.3`**.
 
@@ -208,59 +213,6 @@ For Android: add the following line in your AndroidManifest.xml
 ```
 
 For IOS: configure [App Transport Security](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33) in your app
-
-## React Native Configuration for Fabric / New Architecture
-
-This library works with Fabric using the [New Renderer Interop Layer](https://github.com/reactwg/react-native-new-architecture/discussions/135)
-
-There is a warning message that those steps are not necessary; but we couldn't get the example working without them so far.
-
-### Configuration Steps
-
-1. **Open your configuration file**: Locate the `react-native-config` file in your project directory.
-
-2. **Add the following configuration**: Include the `unstable_reactLegacyComponentNames` array for both Android and iOS platforms as shown below:
-
-```javascript
-module.exports = {
-  project: {
-    android: {
-      unstable_reactLegacyComponentNames: [
-        'AIRMap',
-        'AIRMapCallout',
-        'AIRMapCalloutSubview',
-        'AIRMapCircle',
-        'AIRMapHeatmap',
-        'AIRMapLocalTile',
-        'AIRMapMarker',
-        'AIRMapOverlay',
-        'AIRMapPolygon',
-        'AIRMapPolyline',
-        'AIRMapUrlTile',
-        'AIRMapWMSTile',
-      ],
-    },
-    ios: {
-      unstable_reactLegacyComponentNames: [
-        'AIRMap',
-        'AIRMapCallout',
-        'AIRMapCalloutSubview',
-        'AIRMapCircle',
-        'AIRMapHeatmap',
-        'AIRMapLocalTile',
-        'AIRMapMarker',
-        'AIRMapOverlay',
-        'AIRMapPolygon',
-        'AIRMapPolyline',
-        'AIRMapUrlTile',
-        'AIRMapWMSTile',
-      ],
-    },
-  },
-};
-```
-
-checkout the example project to see it in action.
 
 #### Tile Overlay using local tiles
 
