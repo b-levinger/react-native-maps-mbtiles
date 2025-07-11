@@ -113,6 +113,10 @@ id regionAsJSON(MKCoordinateRegion region) {
     _didCallOnMapReady = false;
     _zoomTapEnabled = zoomTapEnabled;
 
+    [self setShowsMyLocationButton: true];
+    [self setShowsCompass: true];
+    [self setShowsUserLocation:true];
+
     // Listen to the myLocation property of GMSMapView.
     [self addObserver:self
            forKeyPath:@"myLocation"
