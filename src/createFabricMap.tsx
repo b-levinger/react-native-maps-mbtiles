@@ -52,6 +52,14 @@ function getNodeHandle(ref: unknown): null | number {
     // @ts-expect-error: safe for findNodeHandle
     return findNodeHandle(ref);
   }
+
+   if (
+    (typeof ref === 'object' && '__internalInstanceHandle' in ref)
+  ) {
+    // @ts-expect-error: safe for findNodeHandle
+    return findNodeHandle(ref);
+  }
+
   return null;
 }
 
